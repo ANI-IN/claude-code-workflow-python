@@ -30,3 +30,14 @@ def test_valid_host_pulls_and_processes_the_frame(
     monkeypatch.setattr(snapshot, "pull_snapshot", fake_pull)
     assert snapshot.handle_snapshot("cam-01.example.com", "secret") == jpeg_frame
     assert calls == [("cam-01.example.com", "secret")]
+
+
+def test_snapshot_can_be_requested_as_webp(
+    jpeg_frame: bytes, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(snapshot, "pull_snapshot", lambda host, token: jpeg_frame)
+    output = snapshot.handle_snapshot(
+        "cam-01.example.com", "secret", output_format="webp"
+    )
+    assert output[:4] == b"RIFF"
+    assert output[8:12] == b"WEBP"
